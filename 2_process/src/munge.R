@@ -3,7 +3,7 @@
 #' @param col_types char data types for columns for mendota_file
 #' @param out_file char path to output file
 eval_data <- function(in_file, col_types, out_file) {
-  data <- readr::read_csv(file, col_types = col_types) %>%
+  data <- readr::read_csv(in_file, col_types = col_types) %>%
     filter(str_detect(exper_id, 'similar_[0-9]+')) %>%
     mutate(col = case_when(
       model_type == 'pb' ~ '#1b9e77',
