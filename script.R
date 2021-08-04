@@ -18,7 +18,7 @@ eval_data(in_file = rmse_file,
           out_file = eval_data_file)
 
 model_diagnostics(in_file = eval_data_file,
-                  out_file = '2_process/out/diagnostics.txt')
+                  out_file = '2_process/log/diagnostics.txt')
 
 plot_data(eval_data_file = eval_data_file,
           out_file = '3_visualize/out/plot.png')
