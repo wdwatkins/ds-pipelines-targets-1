@@ -2,8 +2,8 @@
 #' @param mendota_file char path to file downloaded from SB
 #' @param col_types char data types for columns for mendota_file
 #' @param out_file char path to output file
-eval_data <- function(in_file, col_types, out_file) {
-  data <- readr::read_csv(in_file, col_types = col_types) %>%
+process_data <- function(in_filepath, col_types) {
+  data <- readr::read_csv(in_filepath, col_types = col_types) %>%
     filter(str_detect(exper_id, 'similar_[0-9]+')) %>%
     mutate(col = case_when(
       model_type == 'pb' ~ '#1b9e77',
@@ -14,16 +14,14 @@ eval_data <- function(in_file, col_types, out_file) {
       model_type == 'dl' ~ 22,
       model_type == 'pgdl' ~ 23
     ), n_prof = as.numeric(str_extract(exper_id, '[0-9]+')))
-  # Save the processed data
-  readr::write_csv(data, file = out_file)
+  return(data)
 }
 
 #' Output model diagnostics
 #' @param in_file char path to input csv file
 #' @param out_file char path to output model diagnostics
-model_diagnostics <- function(in_file, out_file) {
+generate_model_diagnostics <- function(out_filepath, eval_data) {
   
-  eval_data <- readr::read_csv(in_file)
   # Save the model diagnostics
   render_data <- list(pgdl_980mean = filter(eval_data, model_type == 'pgdl', exper_id == "similar_980") %>% pull(rmse) %>% mean %>% round(2),
                       dl_980mean = filter(eval_data, model_type == 'dl', exper_id == "similar_980") %>% pull(rmse) %>% mean %>% round(2),
@@ -40,6 +38,6 @@ model_diagnostics <- function(in_file, out_file) {
   ({{dl_500mean}} and {{pb_500mean}}°C, respectively) or more, but worse than PB when training was reduced to 100 profiles ({{dl_100mean}} and {{pb_100mean}}°C respectively) or fewer.
   The PGDL prediction accuracy was more robust compared to PB when only two profiles were provided for training ({{pgdl_2mean}} and {{pb_2mean}}°C, respectively). '
   
-  whisker.render(template_1 %>% str_remove_all('\n') %>% str_replace_all('  ', ' '), render_data ) %>% cat(file = out_file)
-  
+  whisker.render(template_1 %>% str_remove_all('\n') %>% str_replace_all('  ', ' '), render_data ) %>% cat(file = out_filepath)
+  return(out_filepath)
 }
